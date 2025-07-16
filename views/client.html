@@ -8,7 +8,7 @@
 </head>
 <body>
   <form id="recap-form">
-    <div class="g-recaptcha" data-sitekey="6LeCV4UrAAAAAIaMTgaRwf1SmHs4pBW2AVp0HruO"></div>
+    <div class="g-recaptcha" data-sitekey="6LeWVYUrAAAAAMCqS-UtbyIzNBa9Z6_wGBM0JxHY"></div>
     <br/>
     <button type="submit">Verify</button>
   </form>
@@ -23,7 +23,7 @@
       }
 
       try {
-        const resp = await fetch('http://localhost:3000/verify-recaptcha', {
+        const resp = await fetch('https://recaptchademo.onrender.com//verify-recaptcha', {
           method: 'POST',
           mode: 'cors',
           headers: { 'Content-Type': 'application/json' },

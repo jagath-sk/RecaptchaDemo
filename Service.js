@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'client.html'));
 });
 
-const RECAPTCHA_SECRET = '6LeCV4UrAAAAAHwDSiIpQO7XvV0fxSJ1xTzj9--R';
+const RECAPTCHA_SECRET = '6LeWVYUrAAAAAIBRH9gvphSjMS73fRmFn2PF6sMO';
 
 app.post('/verify-recaptcha', async (req, res) => {
     console.log('Received /verify-recaptcha request');
