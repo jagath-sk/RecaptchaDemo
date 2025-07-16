@@ -1,0 +1,20 @@
+{
+  "name": "recaptcha-verification-api",
+  "version": "1.0.0",
+  "description": "Simple Node.js Express API for reCaptcha verification",
+  "main": "Service.js",
+  "scripts": {
+    "start": "node Service.js",
+    "dev": "nodemon Service.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["recaptcha", "express", "nodejs", "verification"],
+  "author": "",
+  "license": "ISC"
+}

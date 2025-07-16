@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>reCAPTCHA Test</title>
+  <!-- load the reCAPTCHA v2 script -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <form id="recap-form">
+    <div class="g-recaptcha" data-sitekey="6LeCV4UrAAAAAIaMTgaRwf1SmHs4pBW2AVp0HruO"></div>
+    <br/>
+    <button type="submit">Verify</button>
+  </form>
+
+  <script>
+    document.getElementById('recap-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const token = grecaptcha.getResponse();
+      if (!token) {
+        alert('Please complete the reCAPTCHA');
+        return;
+      }
+
+      try {
+        const resp = await fetch('http://localhost:3000/verify-recaptcha', {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await resp.json();
+        if (data.success) {
+          alert('✅ reCAPTCHA passed!');
+        } else {
+          alert('❌ reCAPTCHA failed: ' + (data.errorCodes || data.message));
+        }
+      } catch (err) {
+        alert('🚨 Network error: ' + err.message);
+      } finally {
+        // reset widget for next try
+        grecaptcha.reset();
+      }
+    });
+  </script>
+</body>
+</html>
