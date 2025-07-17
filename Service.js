@@ -7,8 +7,8 @@ require('dotenv').config(); // Load from .env
 const app = express();
 
 // Enable CORS for all origins (or restrict if needed)
-app.use(cors());
-app.use(express.json());
+// app.use(cors());
+// app.use(express.json());
 
 // Serve static HTML & assets
 app.use(express.static(path.join(__dirname, 'views')));
