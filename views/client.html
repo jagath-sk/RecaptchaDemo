@@ -18,7 +18,9 @@
       e.preventDefault();
       const token = grecaptcha.getResponse();
       if (!token) {
-        alert('Please complete the reCAPTCHA');
+        const reason = 'incomplete';
+        const message = encodeURIComponent('Please complete the reCAPTCHA');
+        window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
         return;
       }
 
@@ -32,12 +34,16 @@
 
         const data = await resp.json();
         if (data.success) {
-          alert('✅ reCAPTCHA passed!');
+          window.location.href = 'unity-recaptcha-success://verified';
         } else {
-          alert('❌ reCAPTCHA failed: ' + (data.errorCodes || data.message));
+          const reason = 'recaptcha_failed';
+          const message = encodeURIComponent(data.errorCodes?.join(',') || data.message || 'Unknown error');
+          window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
         }
       } catch (err) {
-        alert('🚨 Network error: ' + err.message);
+        const reason = 'network_error';
+        const message = encodeURIComponent(err.message || 'Fetch failed');
+        window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
       } finally {
         // reset widget for next try
         grecaptcha.reset();
