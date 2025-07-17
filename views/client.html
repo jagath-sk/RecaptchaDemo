@@ -3,217 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <title>reCAPTCHA Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #f5f5f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px;
+      background: #fff;
+      padding: 30px 40px;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
     }
-    .status-message {
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 5px;
-      font-size: 18px;
-      display: none;
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
     }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+
+    .g-recaptcha {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
     }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .info {
-      background-color: #e2f3f5;
-      color: #0c5460;
-      border: 1px solid #bee5eb;
-    }
+
     button {
       background-color: #4285f4;
-      color: white;
       border: none;
-      padding: 12px 25px;
+      color: white;
+      padding: 12px 24px;
       font-size: 16px;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 20px;
+      transition: background-color 0.3s;
     }
+
     button:hover {
       background-color: #3367d6;
     }
-    .unity-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 10px;
-      z-index: 9999;
-      text-align: center;
-      font-weight: bold;
-      display: none;
-    }
-    .unity-banner.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border-bottom: 2px solid #f5c6cb;
-    }
-    .unity-banner.success {
-      background-color: #d4edda;
-      color: #155724;
-      border-bottom: 2px solid #c3e6cb;
+
+    .status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <div id="unity-banner" class="unity-banner"></div>
-  
   <div class="container">
-    <h1>Security Verification</h1>
-    <div id="status-message" class="status-message info">
-      Please complete the reCAPTCHA verification
-    </div>
-    
+    <h2>Verify You're Human</h2>
+
     <form id="recap-form">
       <div class="g-recaptcha" data-sitekey="6LeWVYUrAAAAAMCqS-UtbyIzNBa9Z6_wGBM0JxHY"></div>
-      <br/>
       <button type="submit">Verify</button>
     </form>
+
+    <div class="status" id="status"></div>
   </div>
 
   <script>
-    // Functions to communicate with Unity
-    function unityLog(message) {
-      console.log(message);
-      try {
-        window.location.href = "unity-console-log://" + encodeURIComponent(message);
-      } catch (err) {
-        console.error("Error sending log to Unity: " + err);
-      }
-    }
-
-    function unityError(message) {
-      console.error(message);
-      try {
-        window.location.href = "unity-console-error://" + encodeURIComponent(message);
-      } catch (err) {
-        console.error("Error sending error to Unity: " + err);
-        handleUnityError("Failed to send error to Unity: " + err.message);
-      }
-    }
-
-    function showStatus(message, type) {
-      const statusEl = document.getElementById('status-message');
-      statusEl.textContent = message;
-      statusEl.className = 'status-message ' + type;
-      statusEl.style.display = 'block';
-    }
-
-    // Unity WebGL Error Handler
-    function unityShowBanner(message, type) {
-      const banner = document.getElementById('unity-banner');
-      banner.textContent = message;
-      banner.className = 'unity-banner ' + type;
-      banner.style.display = 'block';
-      
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        banner.style.display = 'none';
-      }, 5000);
-    }
-
-    function handleUnityError(message) {
-      console.error("[Unity WebGL Error]", message);
-      
-      // 1. Show visual error using Unity's banner
-      unityShowBanner('Loading Error: ' + message, 'error');
-      
-      // 2. Try to notify Unity instance (if available)
-      try {
-        if (window.unityInstance && typeof window.unityInstance.SendMessage === 'function') {
-          window.unityInstance.SendMessage('DemoLoginManager', 'OnWebGLError', message);
-        }
-      } catch (e) {
-        console.warn("Could not send error to Unity:", e);
-      }
-      
-      // 3. Also send through WebView if available
-      try {
-        window.location.href = "unity-webgl-error://" + encodeURIComponent(message);
-      } catch (e) {
-        console.warn("Could not send WebGL error through WebView:", e);
-      }
-    }
-
-    function handleUnitySuccess(message) {
-      console.log("[Unity WebGL Success]", message);
-      
-      // Show success banner
-      unityShowBanner('Success: ' + message, 'success');
-      
-      // Try to notify Unity instance
-      try {
-        if (window.unityInstance && typeof window.unityInstance.SendMessage === 'function') {
-          window.unityInstance.SendMessage('DemoLoginManager', 'OnWebGLSuccess', message);
-        }
-      } catch (e) {
-        console.warn("Could not send success to Unity:", e);
-      }
-    }
-
-    // Initialize page
-    window.addEventListener('load', function() {
-      unityLog('reCAPTCHA page loaded');
-      showStatus('Please complete the reCAPTCHA verification', 'info');
-      
-      // Check for Unity instance
-      if (window.unityInstance) {
-        unityLog('Unity WebGL instance detected');
-      } else {
-        unityLog('Running in WebView mode');
-      }
-    });
-
-    // Handle global errors
-    window.addEventListener('error', function(event) {
-      const errorMessage = `JavaScript Error: ${event.message} at ${event.filename}:${event.lineno}`;
-      handleUnityError(errorMessage);
-    });
-
-    // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', function(event) {
-      const errorMessage = `Unhandled Promise Rejection: ${event.reason}`;
-      handleUnityError(errorMessage);
-    });
+    const statusEl = document.getElementById('status');
 
     document.getElementById('recap-form').addEventListener('submit', async e => {
       e.preventDefault();
       const token = grecaptcha.getResponse();
+
       if (!token) {
-        const errorMsg = 'reCAPTCHA not completed';
-        unityError(errorMsg);
-        showStatus('Please complete the reCAPTCHA', 'error');
-        handleUnityError(errorMsg);
+        statusEl.textContent = '⚠️ Please complete the reCAPTCHA.';
+        statusEl.style.color = '#d9534f';
         return;
       }
 
-      unityLog('reCAPTCHA token received: ' + token.substring(0, 20) + '...');
-      showStatus('Verifying your response...', 'info');
+      statusEl.textContent = '🔄 Verifying...';
+      statusEl.style.color = '#333';
 
       try {
-        unityLog('Sending verification request to backend...');
         const resp = await fetch('https://recaptchademo.onrender.com/verify-recaptcha', {
           method: 'POST',
           mode: 'cors',
@@ -222,31 +100,18 @@
         });
 
         const data = await resp.json();
+
         if (data.success) {
-          const successMsg = 'reCAPTCHA verification successful!';
-          unityLog('✅ ' + successMsg);
-          showStatus('✅ Verification successful! Closing...', 'success');
-          handleUnitySuccess(successMsg);
-          
-          // Send token back to Unity and close WebView immediately
-          unityLog('Sending token to Unity and closing WebView...');
-          window.location.href = "unity-recaptcha-success://" + token;
+          statusEl.textContent = '✅ reCAPTCHA verification successful!';
+          statusEl.style.color = '#28a745';
         } else {
-          const errorMessage = 'reCAPTCHA failed: ' + (data.errorCodes || data.message || 'Unknown error');
-          unityError('❌ ' + errorMessage);
-          showStatus('❌ ' + errorMessage, 'error');
-          handleUnityError(errorMessage);
-          
-          // Reset widget for another try
-          grecaptcha.reset();
+          statusEl.textContent = '❌ Verification failed: ' + (data.errorCodes || data.message);
+          statusEl.style.color = '#d9534f';
         }
       } catch (err) {
-        const errorMessage = 'Network error: ' + err.message;
-        unityError('🚨 ' + errorMessage);
-        showStatus('🚨 ' + errorMessage, 'error');
-        handleUnityError(errorMessage);
-        
-        // Reset widget for another try
+        statusEl.textContent = '🚨 Network error: ' + err.message;
+        statusEl.style.color = '#d9534f';
+      } finally {
         grecaptcha.reset();
       }
     });
