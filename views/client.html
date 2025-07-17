@@ -3,13 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <title>reCAPTCHA Test</title>
-  <!-- load the reCAPTCHA v2 script -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Load the reCAPTCHA v2 script -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    form {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333333;
+    }
+
+    .g-recaptcha {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    @media (max-width: 480px) {
+      form {
+        padding: 25px 20px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <form id="recap-form">
+    <h1>Verify You're Human</h1>
     <div class="g-recaptcha" data-sitekey="6LeWVYUrAAAAAMCqS-UtbyIzNBa9Z6_wGBM0JxHY"></div>
-    <br/>
     <button type="submit">Verify</button>
   </form>
 
@@ -45,7 +103,6 @@
         const message = encodeURIComponent(err.message || 'Fetch failed');
         window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
       } finally {
-        // reset widget for next try
         grecaptcha.reset();
       }
     });
