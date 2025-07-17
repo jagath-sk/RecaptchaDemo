@@ -3,93 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <title>reCAPTCHA Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- reCAPTCHA v2 -->
+  <!-- load the reCAPTCHA v2 script -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: #fff;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    .g-recaptcha {
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: center;
-    }
-
-    button {
-      background-color: #4285f4;
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #3367d6;
-    }
-
-    .status {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #444;
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Verify You're Human</h2>
-
-    <form id="recap-form">
-      <div class="g-recaptcha" data-sitekey="6LeWVYUrAAAAAMCqS-UtbyIzNBa9Z6_wGBM0JxHY"></div>
-      <button type="submit">Verify</button>
-    </form>
-
-    <div class="status" id="status"></div>
-  </div>
+  <form id="recap-form">
+    <div class="g-recaptcha" data-sitekey="6LeWVYUrAAAAAMCqS-UtbyIzNBa9Z6_wGBM0JxHY"></div>
+    <br/>
+    <button type="submit">Verify</button>
+  </form>
 
   <script>
-    const statusEl = document.getElementById('status');
-
     document.getElementById('recap-form').addEventListener('submit', async e => {
       e.preventDefault();
       const token = grecaptcha.getResponse();
-
       if (!token) {
-        statusEl.textContent = '⚠️ Please complete the reCAPTCHA.';
-        statusEl.style.color = '#d9534f';
+        const reason = 'incomplete';
+        const message = encodeURIComponent('Please complete the reCAPTCHA');
+        window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
         return;
       }
-
-      statusEl.textContent = '🔄 Verifying...';
-      statusEl.style.color = '#333';
 
       try {
         const resp = await fetch('https://recaptchademo.onrender.com/verify-recaptcha', {
@@ -100,18 +33,19 @@
         });
 
         const data = await resp.json();
-
         if (data.success) {
-          statusEl.textContent = '✅ reCAPTCHA verification successful!';
-          statusEl.style.color = '#28a745';
+          window.location.href = 'unity-recaptcha-success://verified';
         } else {
-          statusEl.textContent = '❌ Verification failed: ' + (data.errorCodes || data.message);
-          statusEl.style.color = '#d9534f';
+          const reason = 'recaptcha_failed';
+          const message = encodeURIComponent(data.errorCodes?.join(',') || data.message || 'Unknown error');
+          window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
         }
       } catch (err) {
-        statusEl.textContent = '🚨 Network error: ' + err.message;
-        statusEl.style.color = '#d9534f';
+        const reason = 'network_error';
+        const message = encodeURIComponent(err.message || 'Fetch failed');
+        window.location.href = `unity-recaptcha-failed://reason=${reason}&message=${message}`;
       } finally {
+        // reset widget for next try
         grecaptcha.reset();
       }
     });
